@@ -5,39 +5,64 @@
 
 
 
-    document.getElementById('loader').style.display='none';
+   // document.getElementById('loader').style.display='none';
 
 
 
   });
 
  
-var count=0;
-  window.addEventListener('DOMContentLoaded',function(){
-     
-    var onImgLoad = function(selector, callback){
-    $(selector).each(function(){
-        if (this.complete || /*for IE 10-*/ $(this).height() > 0) {
-            callback.apply(this);
+/* global variables to hold image counter and total images */
+var count=0,
+	total=0, z=0;
+	
+	
+/* attach event to image element. This code fires as soon as dom is loaded */
+window.addEventListener('DOMContentLoaded',function(){
+	var loaderSpan = document.querySelectorAll('#loader p span')[0],
+		imgarr = document.getElementsByTagName('img'); //querySelectorAll('[data-loaded=loadit]')
+	
+	
+	for(var i=0; i<imgarr.length; i++){
+		var imgElem = imgarr[i];
+		imgElem.addEventListener('load', function(){
+			checkLoad(this,imgarr.length);
+		
+		})
+	}
+});
 
-        }
-        else {
-            $(this).on('load', function(){
-               callback.apply(this);
-            });
-        }
-    });
-    };
+/* method to check if the image is completely loaded. That is, the src is fully fetched at client end */
+function checkLoad(img,total){
+	var fcheckImgLoad = function(){
+			//check if image is fully downloaded
+			if(img.complete){
+				count++;
+				
+				document.querySelectorAll('#loader p span')[0].innerHTML=parseInt(count/total*100)+'%';
+        console.log(count +'done');
+				if(count == total){
+					setTimeout(function(){
+						document.getElementById('loader').style.display = 'none';
+					},2000);
+				}
+			}
+			//else keep checking every 100ms till its fully downloaded
+			else{
 
-onImgLoad(document.querySelectorAll('[data-loaded=loadit]'), function(){
-    // do stuff
-    var total=document.querySelectorAll('[data-loaded=loadit]').length;
-    count++;
-      console.log('hey '+count+' image loaded');
-    document.querySelectorAll('#loader p span')[0].innerHTML=parseInt((count/total)*100)+'%';
+        
 
-  });
-  },false);
+				setTimeout(function(){
+          
+          
+					fcheckImgLoad();
+          
+				}, 100);
+			}
+		}
+	fcheckImgLoad();
+};
+
 
 
 
